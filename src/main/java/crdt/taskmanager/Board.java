@@ -1,15 +1,22 @@
+package crdt.taskmanager;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
-public class Board {
+public class Board implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private String title;
-    private final ArrayList<Task> tasks = new ArrayList<>();
+    private final List<Task> tasks = new ArrayList<>();
 
-    @JsonCreator
-    public Board(@JsonProperty("title")String title) {
+    public Board(String title) {
         this.title = title;
+        tasks.addLast(new Task("test task", new RGA()));
     }
 
     public String getTitle() {
@@ -20,7 +27,7 @@ public class Board {
         this.title = title;
     }
 
-    public ArrayList<Task> getTasks() {
+    public List<Task> getTasks() {
         return tasks;
     }
 

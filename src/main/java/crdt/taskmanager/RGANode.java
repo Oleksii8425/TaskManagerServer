@@ -1,3 +1,5 @@
+package crdt.taskmanager;
+
 public class RGANode {
     Character value;
     S4Vector sk; //Sequence Key

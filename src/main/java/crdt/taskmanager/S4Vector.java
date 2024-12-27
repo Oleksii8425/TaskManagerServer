@@ -1,4 +1,4 @@
-import com.fasterxml.jackson.annotation.JsonProperty;
+package crdt.taskmanager;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -7,7 +7,14 @@ public class S4Vector {
     int ssn; // Global session number
     int sid; // Unique site ID
     int sum; // Cumulative sum of the site’s vector clock
-    int seq; // Sequence number at the originating site
+    int seq; // Sequence number at the originating site=
+
+    public S4Vector(int ssn, int sid, int sum, int seq) {
+        this.ssn = ssn;
+        this.sid = sid;
+        this.sum = sum;
+        this.seq = seq;
+    }
 
     public S4Vector(String data) {
         String[] newData = data.replaceAll("[a-zA-Z]{3}:", "").split(" ");
@@ -16,16 +23,6 @@ public class S4Vector {
         sid = Integer.parseInt(newData[1]);
         sum = Integer.parseInt(newData[2]);
         seq = Integer.parseInt(newData[3]);
-    }
-
-    public S4Vector(@JsonProperty("ssn") int ssn,
-                    @JsonProperty("sid") int sid,
-                    @JsonProperty("sum") int sum,
-                    @JsonProperty("seq") int seq) {
-        this.ssn = ssn;
-        this.sid = sid;
-        this.sum = sum;
-        this.seq = seq;
     }
 
     @Override

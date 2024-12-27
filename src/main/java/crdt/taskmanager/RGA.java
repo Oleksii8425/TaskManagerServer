@@ -1,3 +1,5 @@
+package crdt.taskmanager;
+
 import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
@@ -5,8 +7,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class RGA implements Serializable {
+    private static final long serialVersionUID = 1L;
+    @JsonProperty("head")
     RGANode head;
+    @JsonProperty("crdt.taskmanager.RGA")
     Hashtable<S4Vector, RGANode> RGA;
+    @JsonProperty("s0")
     S4Vector s0;
 
     public RGA() {
@@ -14,11 +20,10 @@ public class RGA implements Serializable {
         RGA = new Hashtable<>();
     }
 
-    @JsonCreator
     public RGA(
-            @JsonProperty("head") RGANode head,
-            @JsonProperty("RGA") Hashtable<S4Vector, RGANode> RGA,
-            @JsonProperty("s0") S4Vector s0
+            RGANode head,
+            Hashtable<S4Vector, RGANode> RGA,
+            S4Vector s0
     ) {
         this.head = head;
         this.RGA = RGA != null ? RGA : new Hashtable<>();
@@ -86,8 +91,8 @@ public class RGA implements Serializable {
         //ins.sk = s0;
         //ins.sp = s0;
         ins.value = c;
-        //ins.next = RGA.get(s0);
-        //RGA.put(s0, ins);
+        //ins.next = crdt.taskmanager.RGA.get(s0);
+        //crdt.taskmanager.RGA.put(s0, ins);
 
         if (i == null) {
             if (head == null || head.sk.precedes(ins.sk)) {
