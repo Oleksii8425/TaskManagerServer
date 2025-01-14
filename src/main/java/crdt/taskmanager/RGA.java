@@ -47,7 +47,7 @@ public class RGA implements Serializable {
         else return n;
     }
 
-    public boolean insert(int i, Character c) {
+    public boolean insert(int i, String c) {
         RGANode referNode = findList(i);
         if (referNode == null) return false;
         RGANode newNode = new RGANode();
@@ -63,21 +63,21 @@ public class RGA implements Serializable {
         return true;
     }
 
-    public boolean update(int i, Character c) {
+    public boolean update(int i, String c) {
         RGANode targetNode = findList(i);
         if (targetNode == null) return false;
         targetNode.value = c;
         return true;
     }
 
-    public Character read (int i) {
+    public String read (int i) {
         RGANode targetNode = findList(i);
         if (targetNode == null) return null;
         return targetNode.value;
     }
 
     //remote operations
-    public boolean insert(S4Vector i, Character c) {
+    public boolean insert(S4Vector i, String c) {
         RGANode ins;
         RGANode ref;
 
@@ -88,11 +88,11 @@ public class RGA implements Serializable {
         }
 
         ins = new RGANode();
-        //ins.sk = s0;
-        //ins.sp = s0;
+        ins.sk = s0;
+        ins.sp = s0;
         ins.value = c;
-        //ins.next = crdt.taskmanager.RGA.get(s0);
-        //crdt.taskmanager.RGA.put(s0, ins);
+        ins.next = RGA.get(s0);
+        RGA.put(s0, ins);
 
         if (i == null) {
             if (head == null || head.sk.precedes(ins.sk)) {
@@ -117,19 +117,19 @@ public class RGA implements Serializable {
         if (n == null) throw new NoSuchElementException();
         if (n .value != null) {
             n.value = null;
-            //n.sp = s0;
+            n.sp = s0;
         }
         return true;
     }
 
-    public boolean update(S4Vector i, Character c) {
+    public boolean update(S4Vector i, String c) {
         RGANode n = RGA.get(i);
         while (n != null && n.sk != i) n = n.next;
         if (n == null) throw new NoSuchElementException();
         if (n.value == null) return false;
-        //if (s0.precedes(n.sp)) return false;
+        if (s0.precedes(n.sp)) return false;
         n.value = c;
-        //n.sp = s0;
+        n.sp = s0;
         return true;
     }
 

@@ -7,7 +7,7 @@ public class S4Vector {
     int ssn; // Global session number
     int sid; // Unique site ID
     int sum; // Cumulative sum of the site’s vector clock
-    int seq; // Sequence number at the originating site=
+    int seq; // Sequence number at the originating site
 
     public S4Vector(int ssn, int sid, int sum, int seq) {
         this.ssn = ssn;
