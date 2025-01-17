@@ -3,17 +3,17 @@ package crdt.taskmanager;
 import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
+import java.util.Vector;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class RGA implements Serializable {
     private static final long serialVersionUID = 1L;
-    @JsonProperty("head")
     RGANode head;
-    @JsonProperty("crdt.taskmanager.RGA")
     Hashtable<S4Vector, RGANode> RGA;
-    @JsonProperty("s0")
     S4Vector s0;
+    private Vector<Long> vectorClock;
 
     public RGA() {
         head = null;
