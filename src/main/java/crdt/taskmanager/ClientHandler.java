@@ -7,6 +7,7 @@ public class ClientHandler extends Thread {
     private final Socket clientSocket;
     private final Server server;
 
+    private ObjectInputStream in;
     private ObjectOutputStream out;
 
     public static final String ANSI_RESET = "\u001B[0m";
@@ -16,6 +17,7 @@ public class ClientHandler extends Thread {
         this.clientSocket = socket;
         this.server = server;
         try {
+            this.in = new ObjectInputStream(clientSocket.getInputStream());
             this.out = new ObjectOutputStream(clientSocket.getOutputStream());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -29,32 +31,37 @@ public class ClientHandler extends Thread {
             int siteN = server.getClientsNumber() - 1;
             out.writeObject(siteN); //site number
             out.writeObject(Server.boards);
-            ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
             Operation operation;
-            while ((operation = (Operation) in.readObject()) != null) {
+            while (true) {
+                try {
+                    operation = (Operation) in.readObject();
+                    if (operation == null) break;
+                } catch (EOFException e) {
+                    continue;
+                }
+                
                 System.out.println("Received: " + ANSI_GREEN +  operation + ANSI_RESET);
                 for (ClientHandler client : server.getClients()) {
                     client.broadcastOperation(operation);
                 }
             }
+
             System.out.println("Client disconnected");
             server.removeClient(siteN);
             out.close();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
-            if (server.getClientsNumber() == 0) {
-                Server.sessionN++;
-                for (Board b : Server.boards.values()) {
-                    for (Task t : b.getTasks()) {
-                        t.getVectorClock().set(0, 0L);
-                        t.getVectorClock().set(1, 0L);
-                        t.getVectorClock().set(2, 0L);
-                    }
+        if (server.getClientsNumber() == 0) {
+            Server.sessionN++;
+            for (Board b : Server.boards.values()) {
+                for (Task t : b.getTasks()) {
+                    t.getVectorClock().set(0, 0L);
+                    t.getVectorClock().set(1, 0L);
+                    t.getVectorClock().set(2, 0L);
                 }
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
