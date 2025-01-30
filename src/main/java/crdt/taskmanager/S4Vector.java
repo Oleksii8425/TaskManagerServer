@@ -1,15 +1,17 @@
 package crdt.taskmanager;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class S4Vector {
-    int ssn; // Global session number
+public class S4Vector implements Serializable {
+    private static final long serialVersionUID = 1L;
+    Long ssn; // Global session number
     int sid; // Unique site ID
-    int sum; // Cumulative sum of the site’s vector clock
-    int seq; // Sequence number at the originating site
+    Long sum; // Cumulative sum of the site’s vector clock
+    Long seq; // Sequence number at the originating site
 
-    public S4Vector(int ssn, int sid, int sum, int seq) {
+    public S4Vector(Long ssn, int sid, Long sum, Long seq) {
         this.ssn = ssn;
         this.sid = sid;
         this.sum = sum;
@@ -19,10 +21,10 @@ public class S4Vector {
     public S4Vector(String data) {
         String[] newData = data.replaceAll("[a-zA-Z]{3}:", "").split(" ");
         System.out.println(Arrays.toString(newData));
-        ssn = Integer.parseInt(newData[0]);
+        ssn = Long.parseLong(newData[0]);
         sid = Integer.parseInt(newData[1]);
-        sum = Integer.parseInt(newData[2]);
-        seq = Integer.parseInt(newData[3]);
+        sum = Long.parseLong(newData[2]);
+        seq = Long.parseLong(newData[3]);
     }
 
     @Override

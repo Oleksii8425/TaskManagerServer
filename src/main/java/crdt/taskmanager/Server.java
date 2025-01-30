@@ -10,8 +10,8 @@ import java.util.Vector;
 public class Server {
     private ServerSocket serverSocket;
 
-    public static long sessionN = 0;
-    public static Hashtable<String, Board> boards = new Hashtable<>();
+    private static Long sessionN = 0L;
+    private static Hashtable<String, Board> boards = new Hashtable<>();
     private ArrayList<ClientHandler> clients = new ArrayList<>();
 
     public Server() {
@@ -23,12 +23,20 @@ public class Server {
         }
     }
 
-    public ArrayList<ClientHandler> getClients() {
-        return clients;
+    public Long getSessionN() {
+        return sessionN;
     }
 
-    public int getClientsNumber() {
-        return clients.size();
+    public void increaseSessionN() {
+        sessionN++;
+    }
+
+    public Hashtable<String, Board> getBoards() {
+        return boards;
+    }
+
+    public ArrayList<ClientHandler> getClients() {
+        return clients;
     }
 
     public void removeClient(int index) {
@@ -39,7 +47,7 @@ public class Server {
         serverSocket = new ServerSocket(port);
         try {
             while (clients.size() <= 3) {
-                ClientHandler client = new ClientHandler(serverSocket.accept(), this);
+                ClientHandler client = new ClientHandler(serverSocket.accept(), this, clients.size());
                 client.start();
                 clients.add(client);
             }
@@ -50,5 +58,15 @@ public class Server {
 
     public void stop() throws IOException {
         serverSocket.close();
+    }
+
+    public void resetVectorClocks() {
+        for (Board b : boards.values()) {
+            for (Task t : b.getTasks()) {
+                t.updateVectorClock(0, 0L);
+                t.updateVectorClock(1, 0L);
+                t.updateVectorClock(2, 0L);
+            }
+        }
     }
 }

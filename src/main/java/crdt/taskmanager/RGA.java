@@ -1,105 +1,125 @@
 package crdt.taskmanager;
 
 import java.io.Serializable;
-import java.util.Hashtable;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class RGA implements Serializable {
     private static final long serialVersionUID = 1L;
+
     RGANode head;
     Hashtable<S4Vector, RGANode> RGA;
-    S4Vector s0;
-    private Vector<Long> vectorClock;
 
     public RGA() {
         head = null;
         RGA = new Hashtable<>();
     }
 
+    @JsonCreator
     public RGA(
-            RGANode head,
-            Hashtable<S4Vector, RGANode> RGA,
-            S4Vector s0
-    ) {
+            @JsonProperty("head") RGANode head,
+            @JsonProperty("RGA") Hashtable<S4Vector, RGANode> RGA) {
         this.head = head;
         this.RGA = RGA != null ? RGA : new Hashtable<>();
-        this.s0 = s0;
     }
 
-    // local operations
     public RGANode findList(int i) {
         RGANode n = head;
+        if (i == 0)
+            return n;
         int k = 0;
         while (n != null) {
             if (n.value != null)
-                if (i == ++k) return n;
+                if (i == ++k)
+                    return n;
             n = n.link;
         }
         return null;
     }
 
-    public RGANode findLink(RGANode n) {
-        if (n.value == null) return null;
-        else return n;
-    }
+    // local operations
+    public RGANode insert(int i, S4Vector so, String c) throws NoSuchElementException {
+        System.out.println("local insert");
+        if (i == 0) {
+            head = new RGANode();
+            head.value = c;
+            return null;
+        }
 
-    public boolean insert(int i, String c) {
         RGANode referNode = findList(i);
-        if (referNode == null) return false;
+        if (referNode == null)
+            throw new NoSuchElementException();
+
         RGANode newNode = new RGANode();
         newNode.value = c;
+        newNode.sk = so;
+        newNode.sp = so;
+        referNode.link = newNode;
         referNode.next = newNode;
-        return true;
+        RGA.put(so, newNode);
+
+        return referNode;
     }
 
-    public boolean delete(int i) {
+    public RGANode delete(int i) {
+        System.out.println("local delete");
         RGANode targetNode = findList(i);
-        if (targetNode == null) return false;
+        if (targetNode == null)
+            return null;
         targetNode.value = null;
-        return true;
+
+        return targetNode;
     }
 
     public boolean update(int i, String c) {
+        System.out.println("local update");
         RGANode targetNode = findList(i);
-        if (targetNode == null) return false;
+        if (targetNode == null)
+            return false;
         targetNode.value = c;
+
         return true;
     }
 
-    public String read (int i) {
+    public String read(int i) {
         RGANode targetNode = findList(i);
-        if (targetNode == null) return null;
+        if (targetNode == null)
+            return null;
+
         return targetNode.value;
     }
 
-    //remote operations
-    public boolean insert(S4Vector i, String c) {
+    // remote operations
+    public boolean insert(S4Vector i, S4Vector so, String c) {
+        System.out.println("remote insert");
         RGANode ins;
         RGANode ref;
 
         if (i != null) {
             ref = RGA.get(i);
-            while (ref != null && ref.sk != i) ref = ref.next;
-            if (ref == null) throw new NoSuchElementException();
+            while (ref != null && ref.sk != i)
+                ref = ref.next;
+            if (ref == null)
+                throw new NoSuchElementException();
         }
 
         ins = new RGANode();
-        ins.sk = s0;
-        ins.sp = s0;
+        ins.sk = so;
+        ins.sp = so;
         ins.value = c;
-        ins.next = RGA.get(s0);
-        RGA.put(s0, ins);
+        ins.next = RGA.get(so);
+        RGA.put(so, ins);
 
         if (i == null) {
             if (head == null || head.sk.precedes(ins.sk)) {
-                if (head != null) ins.link = head;
+                if (head != null)
+                    ins.link = head;
                 head = ins;
                 return true;
-            } else ref = head;
+            } else
+                ref = head;
 
             while (ref.link != null && ins.sk.precedes(ref.link.sk))
                 ref = ref.link;
@@ -111,25 +131,35 @@ public class RGA implements Serializable {
         return true;
     }
 
-    public boolean delete(S4Vector i) {
+    public boolean delete(S4Vector i, S4Vector so) {
+        System.out.println("remote delete");
         RGANode n = RGA.get(i);
-        while (n != null && n.sk != i) n = n.next;
-        if (n == null) throw new NoSuchElementException();
-        if (n .value != null) {
+        while (n != null && n.sk != i)
+            n = n.next;
+        if (n == null)
+            throw new NoSuchElementException();
+        if (n.value != null) {
             n.value = null;
-            n.sp = s0;
+            n.sp = so;
         }
+
         return true;
     }
 
-    public boolean update(S4Vector i, String c) {
+    public boolean update(S4Vector i, S4Vector so, String c) {
+        System.out.println("remote update");
         RGANode n = RGA.get(i);
-        while (n != null && n.sk != i) n = n.next;
-        if (n == null) throw new NoSuchElementException();
-        if (n.value == null) return false;
-        if (s0.precedes(n.sp)) return false;
+        while (n != null && n.sk != i)
+            n = n.next;
+        if (n == null)
+            throw new NoSuchElementException();
+        if (n.value == null)
+            return false;
+        if (so.precedes(n.sp))
+            return false;
         n.value = c;
-        n.sp = s0;
+        n.sp = so;
+
         return true;
     }
 
@@ -141,6 +171,7 @@ public class RGA implements Serializable {
             result.append(current.value);
             current = current.next;
         }
+
         return result.toString();
     }
 }
