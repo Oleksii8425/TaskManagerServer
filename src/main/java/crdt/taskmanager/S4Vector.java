@@ -29,11 +29,22 @@ public class S4Vector implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         S4Vector s4Vector = (S4Vector) o;
-        return ssn == s4Vector.ssn && sid == s4Vector.sid &&
-                sum == s4Vector.sum && seq == s4Vector.seq;
+        // System.out.println("this key" + System.identityHashCode(this.hashCode()));
+        // System.out.println("i key" + System.identityHashCode(s4Vector.hashCode()));
+        boolean a = ssn.longValue() == s4Vector.ssn.longValue();
+        boolean b = sid == s4Vector.sid;
+        boolean c = sum.longValue() == s4Vector.sum.longValue();
+        boolean d = seq.longValue() == s4Vector.seq.longValue();
+        boolean res = a && b && c && d;
+        // return ssn == s4Vector.ssn && sid == s4Vector.sid &&
+        // sum == s4Vector.sum && seq == s4Vector.seq;
+
+        return res;
     }
 
     @Override
