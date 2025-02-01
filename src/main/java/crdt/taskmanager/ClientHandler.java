@@ -68,7 +68,7 @@ public class ClientHandler extends Thread {
 
     public void broadcastOperation(S4Vector i, Operation op) {
         try {
-            out.writeObject(i);
+            out.writeObject(i); 
             out.writeObject(op);
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -10,19 +10,19 @@ public class RGA implements Serializable {
     private static final long serialVersionUID = 1L;
 
     RGANode head;
-    Hashtable<S4Vector, RGANode> RGA;
+    CustomHashtable<S4Vector, RGANode> RGA;
 
     public RGA() {
         head = null;
-        RGA = new Hashtable<>();
+        RGA = new CustomHashtable<>();
     }
 
     @JsonCreator
     public RGA(
             @JsonProperty("head") RGANode head,
-            @JsonProperty("RGA") Hashtable<S4Vector, RGANode> RGA) {
+            @JsonProperty("RGA") CustomHashtable<S4Vector, RGANode> RGA) {
         this.head = head;
-        this.RGA = RGA != null ? RGA : new Hashtable<>();
+        this.RGA = RGA != null ? RGA : new CustomHashtable<>();
     }
 
     public RGANode findList(int i) {

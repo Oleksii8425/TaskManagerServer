@@ -4,14 +4,13 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.Vector;
 
 public class Server {
     private ServerSocket serverSocket;
 
     private static Long sessionN = 0L;
-    private static Hashtable<String, Board> boards = new Hashtable<>();
+    private static CustomHashtable<String, Board> boards = new CustomHashtable<>();
     private ArrayList<ClientHandler> clients = new ArrayList<>();
 
     public Server() {
@@ -31,7 +30,7 @@ public class Server {
         sessionN++;
     }
 
-    public Hashtable<String, Board> getBoards() {
+    public CustomHashtable<String, Board> getBoards() {
         return boards;
     }
 
