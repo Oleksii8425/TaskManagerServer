@@ -1,7 +1,7 @@
 package crdt.taskmanager;
 
 public class RGANode {
-    String value;
+    Object value;
     S4Vector sk; //Sequence Key
     S4Vector sp; //Sequence Predecessor
     RGANode next; //the next Node used for the hash table chaining
