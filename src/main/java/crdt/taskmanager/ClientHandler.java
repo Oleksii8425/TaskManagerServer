@@ -36,7 +36,7 @@ public class ClientHandler extends Thread {
             while (true) {
                 try {
                     S4Vector i = (S4Vector) in.readObject();
-                    Operation operation = (Operation) in.readObject();
+                    Operation<Object> operation = (Operation<Object>) in.readObject();
 
                     if (operation == null)
                         break;
@@ -66,7 +66,7 @@ public class ClientHandler extends Thread {
         }
     }
 
-    public void broadcastOperation(S4Vector i, Operation op) {
+    public void broadcastOperation(S4Vector i, Operation<Object> op) {
         try {
             out.writeObject(i); 
             out.writeObject(op);

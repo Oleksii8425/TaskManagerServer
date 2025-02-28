@@ -3,19 +3,19 @@ package crdt.taskmanager;
 import java.io.Serializable;
 import java.util.Vector;
 
-public class Operation implements Serializable {
+public class Operation<T> implements Serializable {
     String type;
-    String character;
+    T element;
     Long sessionN;
     int siteN;
     Vector<Long> vectorClock;
     String board;
     int task;
 
-    public Operation(String type, String character, Long sessionN, int siteN, Vector<Long> vectorClock, String board,
+    public Operation(String type, T element, Long sessionN, int siteN, Vector<Long> vectorClock, String board,
             int task) {
         this.type = type;
-        this.character = character;
+        this.element = element;
         this.sessionN = sessionN;
         this.siteN = siteN;
         this.vectorClock = vectorClock;
@@ -25,7 +25,7 @@ public class Operation implements Serializable {
 
     @Override
     public String toString() {
-        return "Operation [type=" + type + ", character=" + character + ", sessionN=" + sessionN + ", siteN=" + siteN
+        return "Operation [type=" + type + ", element=" + element.toString() + ", sessionN=" + sessionN + ", siteN=" + siteN
                 + ", vectorClock=" + vectorClock + ", board=" + board + ", task=" + task + "]";
     }
 }

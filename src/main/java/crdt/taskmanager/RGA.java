@@ -6,11 +6,12 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class RGA implements Serializable {
+public class RGA<T> implements Serializable, Iterable<T> {
     private static final long serialVersionUID = 1L;
+    private Vector<Long> vectorClock;
 
-    RGANode head;
-    CustomHashtable<S4Vector, RGANode> RGA;
+    RGANode<T> head;
+    CustomHashtable<S4Vector, RGANode<T>> RGA;
 
     public RGA() {
         head = null;
@@ -19,14 +20,36 @@ public class RGA implements Serializable {
 
     @JsonCreator
     public RGA(
-            @JsonProperty("head") RGANode head,
-            @JsonProperty("RGA") CustomHashtable<S4Vector, RGANode> RGA) {
+            @JsonProperty("head") RGANode<T> head,
+            @JsonProperty("RGA") CustomHashtable<S4Vector, RGANode<T>> RGA) {
         this.head = head;
         this.RGA = RGA != null ? RGA : new CustomHashtable<>();
     }
 
-    public RGANode findList(int i) {
-        RGANode n = head;
+    public Vector<Long> getVectorClock() {
+        return vectorClock;
+    }
+
+    public void setVectorClock(Vector<Long> vectorClock) {
+        this.vectorClock = vectorClock;
+    }
+
+    public void updateVectorClock(int pos, Long val) {
+        vectorClock.set(pos, val);
+    }
+
+    public void increaseVectorClock(int pos) {
+        long c = vectorClock.get(pos);
+        updateVectorClock(pos, c + 1);
+    }
+
+    public void decreaseVectorClock(int pos) {
+        long c = vectorClock.get(pos);
+        updateVectorClock(pos, c - 1);
+    }
+
+    public RGANode<T> findList(int i) {
+        RGANode<T> n = head;
         if (i == 0)
             return n;
         int k = 0;
@@ -40,19 +63,23 @@ public class RGA implements Serializable {
     }
 
     // local operations
-    public RGANode insert(int i, S4Vector so, String c) throws NoSuchElementException {
+    public RGANode<T> insert(int i, S4Vector so, T c) throws NoSuchElementException {
         System.out.println("local insert");
         if (i == 0) {
-            head = new RGANode();
+            head = new RGANode<T>();
             head.value = c;
+            head.sk = so;
+            head.sp = so;
+            RGA.put(so, head);
+
             return null;
         }
 
-        RGANode referNode = findList(i);
+        RGANode<T> referNode = findList(i);
         if (referNode == null)
             throw new NoSuchElementException();
 
-        RGANode newNode = new RGANode();
+        RGANode<T> newNode = new RGANode<T>();
         newNode.value = c;
         newNode.sk = so;
         newNode.sp = so;
@@ -63,28 +90,26 @@ public class RGA implements Serializable {
         return referNode;
     }
 
-    public RGANode delete(int i) {
+    public RGANode<T> delete(int i) {
         System.out.println("local delete");
-        RGANode targetNode = findList(i);
-        if (targetNode == null)
-            return null;
-        targetNode.value = null;
+        RGANode<T> targetNode = findList(i);
+        if (targetNode != null)
+            targetNode.value = null;
 
         return targetNode;
     }
 
-    public boolean update(int i, String c) {
+    public RGANode<T> update(int i, T c) {
         System.out.println("local update");
-        RGANode targetNode = findList(i);
-        if (targetNode == null)
-            return false;
-        targetNode.value = c;
+        RGANode<T> targetNode = findList(i);
+        if (targetNode != null)
+            targetNode.value = c;
 
-        return true;
+        return targetNode;
     }
 
-    public String read(int i) {
-        RGANode targetNode = findList(i);
+    public Object read(int i) {
+        RGANode<T> targetNode = findList(i);
         if (targetNode == null)
             return null;
 
@@ -92,20 +117,21 @@ public class RGA implements Serializable {
     }
 
     // remote operations
-    public boolean insert(S4Vector i, S4Vector so, String c) {
+    public boolean insert(S4Vector i, S4Vector so, T c) {
         System.out.println("remote insert");
-        RGANode ins;
-        RGANode ref;
+        RGANode<T> ins = null;
+        RGANode<T> ref = null;
 
         if (i != null) {
             ref = RGA.get(i);
-            while (ref != null && ref.sk != i)
+            System.out.println(ref.sk.equals(i));
+            while (ref != null && !ref.sk.equals(i))
                 ref = ref.next;
             if (ref == null)
                 throw new NoSuchElementException();
         }
 
-        ins = new RGANode();
+        ins = new RGANode<T>();
         ins.sk = so;
         ins.sp = so;
         ins.value = c;
@@ -117,24 +143,24 @@ public class RGA implements Serializable {
                 if (head != null)
                     ins.link = head;
                 head = ins;
+
                 return true;
             } else
                 ref = head;
-
-            while (ref.link != null && ins.sk.precedes(ref.link.sk))
-                ref = ref.link;
-            ins.link = ref.link;
-            ref.link = ins;
-            return true;
         }
+
+        while (ref.link != null && ins.sk.precedes(ref.link.sk))
+            ref = ref.link;
+        ins.link = ref.link;
+        ref.link = ins;
 
         return true;
     }
 
     public boolean delete(S4Vector i, S4Vector so) {
         System.out.println("remote delete");
-        RGANode n = RGA.get(i);
-        while (n != null && n.sk != i)
+        RGANode<T> n = RGA.get(i);
+        while (n != null && !n.sk.equals(i))
             n = n.next;
         if (n == null)
             throw new NoSuchElementException();
@@ -146,10 +172,10 @@ public class RGA implements Serializable {
         return true;
     }
 
-    public boolean update(S4Vector i, S4Vector so, String c) {
+    public boolean update(S4Vector i, S4Vector so, T c) {
         System.out.println("remote update");
-        RGANode n = RGA.get(i);
-        while (n != null && n.sk != i)
+        RGANode<T> n = RGA.get(i);
+        while (n != null && !n.sk.equals(i))
             n = n.next;
         if (n == null)
             throw new NoSuchElementException();
@@ -166,12 +192,54 @@ public class RGA implements Serializable {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        RGANode current = head;
+        RGANode<T> current = head;
+
         while (current != null) {
-            result.append(current.value);
-            current = current.next;
+            if (current.value != null) {
+                result.append(current.value);
+            }
+            current = current.link;
         }
 
         return result.toString();
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new RGAIterator<T>(this);
+    }
+
+    public ArrayList<T> toList() {
+        ArrayList<T> res = new ArrayList<T>();
+
+        for (T val : this) {
+            res.add(val);
+        }
+
+        return res;
+    }
+
+    public T get(int index) throws IndexOutOfBoundsException {
+        int i = 0;
+
+        for (T val : this) {
+            if (i == index)
+                return val;
+            i++;
+        }
+
+        throw new IndexOutOfBoundsException();
+    }
+
+    public int indexOf(T element) throws NoSuchElementException {
+        int i = 0;
+
+        for (T val : this) {
+            if (val == element)
+                return i;
+            i++;
+        }
+
+        throw new NoSuchElementException();
     }
 }

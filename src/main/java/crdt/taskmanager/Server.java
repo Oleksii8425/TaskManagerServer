@@ -14,12 +14,6 @@ public class Server {
     private ArrayList<ClientHandler> clients = new ArrayList<>();
 
     public Server() {
-        boards.put("board_1", new Board("board_1"));
-        for (Board board : boards.values()) {
-            for (Task task : board.getTasks()) {
-                task.setVectorClock(new Vector<>(Arrays.asList(0L, 0L, 0L)));
-            }
-        }
     }
 
     public Long getSessionN() {
@@ -62,9 +56,9 @@ public class Server {
     public void resetVectorClocks() {
         for (Board b : boards.values()) {
             for (Task t : b.getTasks()) {
-                t.updateVectorClock(0, 0L);
-                t.updateVectorClock(1, 0L);
-                t.updateVectorClock(2, 0L);
+                t.getContent().updateVectorClock(0, 0L);
+                t.getContent().updateVectorClock(1, 0L);
+                t.getContent().updateVectorClock(2, 0L);
             }
         }
     }

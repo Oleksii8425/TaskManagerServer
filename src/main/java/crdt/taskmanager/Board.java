@@ -2,18 +2,24 @@ package crdt.taskmanager;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Board implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private String title;
-    private final List<Task> tasks = new ArrayList<>();
+    private RGA<Task> tasks;
+
+    public Board() {
+    }
+
+    public Board(String title, RGA<Task> tasks) {
+        this.title = title;
+        this.tasks = tasks;
+    }
 
     public Board(String title) {
         this.title = title;
-        tasks.addLast(new Task("test task", new RGA()));
+        this.tasks = new RGA<Task>();
     }
 
     public String getTitle() {
@@ -24,15 +30,24 @@ public class Board implements Serializable {
         this.title = title;
     }
 
-    public List<Task> getTasks() {
+    public RGA<Task> getTasks() {
         return tasks;
     }
 
     public void addTask(Task task) {
-        tasks.add(task);
+        int i = tasks.toList().size() - 1;
+        tasks.insert(i, new S4Vector(title), task);
     }
 
     public void removeTask(Task task) {
-        tasks.remove(task);
+        int i = 0;
+
+        for (Task t : tasks) {
+            if (t.equals(task)) {
+                tasks.delete(i);
+            }
+            
+            i++;
+        }
     }
 }
