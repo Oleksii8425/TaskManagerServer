@@ -3,14 +3,12 @@ package crdt.taskmanager;
 import java.io.*;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Vector;
 
 public class Server {
     private ServerSocket serverSocket;
 
     private static Long sessionN = 0L;
-    private static CustomHashtable<String, Board> boards = new CustomHashtable<>();
+    private static RGA<Board> boards = new RGA<>();
     private ArrayList<ClientHandler> clients = new ArrayList<>();
 
     public Server() {
@@ -24,7 +22,7 @@ public class Server {
         sessionN++;
     }
 
-    public CustomHashtable<String, Board> getBoards() {
+    public RGA<Board> getBoards() {
         return boards;
     }
 
@@ -54,7 +52,7 @@ public class Server {
     }
 
     public void resetVectorClocks() {
-        for (Board b : boards.values()) {
+        for (Board b : boards) {
             for (Task t : b.getTasks()) {
                 t.getContent().updateVectorClock(0, 0L);
                 t.getContent().updateVectorClock(1, 0L);

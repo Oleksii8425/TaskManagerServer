@@ -1,25 +1,29 @@
 package crdt.taskmanager;
 
-import java.io.Serial;
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Board implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
+    private Queue<Operation<String>> opQueue;
     private String title;
     private RGA<Task> tasks;
 
     public Board() {
-    }
-
-    public Board(String title, RGA<Task> tasks) {
-        this.title = title;
-        this.tasks = tasks;
+        this.opQueue = new LinkedList<>();
     }
 
     public Board(String title) {
+        this.opQueue = new LinkedList<>();
         this.title = title;
         this.tasks = new RGA<Task>();
+    }
+
+    public Board(String title, RGA<Task> tasks) {
+        this.opQueue = new LinkedList<>();
+        this.title = title;
+        this.tasks = tasks;
     }
 
     public String getTitle() {
@@ -34,20 +38,7 @@ public class Board implements Serializable {
         return tasks;
     }
 
-    public void addTask(Task task) {
-        int i = tasks.toList().size() - 1;
-        tasks.insert(i, new S4Vector(title), task);
-    }
-
-    public void removeTask(Task task) {
-        int i = 0;
-
-        for (Task t : tasks) {
-            if (t.equals(task)) {
-                tasks.delete(i);
-            }
-            
-            i++;
-        }
+    public void setTasks(RGA<Task> tasks) {
+        this.tasks = tasks;
     }
 }

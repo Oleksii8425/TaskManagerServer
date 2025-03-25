@@ -29,17 +29,19 @@ public class ClientHandler extends Thread {
     public void run() {
         try {
             System.out.println("Client" + siteN + " connected");
-            out.writeObject(server.getSessionN()); // session number
-            out.writeObject(siteN); // site number
+            out.writeObject(server.getSessionN());
+            out.writeObject(siteN);
             out.writeObject(server.getBoards());
 
             while (true) {
                 try {
                     S4Vector i = (S4Vector) in.readObject();
-                    Operation<Object> operation = (Operation<Object>) in.readObject();
+                    Operation<?> operation = (Operation<?>) in.readObject();
 
-                    if (operation == null)
+                    if (operation == null) {
+                        System.out.println("Empty operation received");
                         break;
+                    }
 
                     System.out.println("Received: " + ANSI_GREEN + operation + " with i = " + i + ANSI_RESET);
 
@@ -60,13 +62,13 @@ public class ClientHandler extends Thread {
             throw new RuntimeException(e);
         }
 
-        if (server.getClients().size() == 0) { // if all clients are disconnected
+        if (server.getClients().size() == 0) {// if all clients are disconnected
             server.increaseSessionN();
             server.resetVectorClocks();
         }
     }
 
-    public void broadcastOperation(S4Vector i, Operation<Object> op) {
+    public void broadcastOperation(S4Vector i, Operation<?> op) {
         try {
             out.writeObject(i); 
             out.writeObject(op);

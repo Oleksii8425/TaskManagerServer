@@ -3,27 +3,18 @@ package crdt.taskmanager;
 import java.io.Serializable;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class RGA<T> implements Serializable, Iterable<T> {
     private static final long serialVersionUID = 1L;
     private Vector<Long> vectorClock;
 
     RGANode<T> head;
     CustomHashtable<S4Vector, RGANode<T>> RGA;
+    private int size = 0;
 
     public RGA() {
+        vectorClock = new Vector<>(Arrays.asList(0L, 0L, 0L));
         head = null;
         RGA = new CustomHashtable<>();
-    }
-
-    @JsonCreator
-    public RGA(
-            @JsonProperty("head") RGANode<T> head,
-            @JsonProperty("RGA") CustomHashtable<S4Vector, RGANode<T>> RGA) {
-        this.head = head;
-        this.RGA = RGA != null ? RGA : new CustomHashtable<>();
     }
 
     public Vector<Long> getVectorClock() {
