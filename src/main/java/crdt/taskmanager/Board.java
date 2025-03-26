@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class Board implements Serializable {
+public class Board implements Serializable, Titleable {
     private static final long serialVersionUID = 1L;
     private Queue<Operation<String>> opQueue;
     private String title;
