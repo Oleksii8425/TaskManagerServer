@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class S4Vector implements Serializable {
+public class S4Vector implements Serializable, Comparable<S4Vector> {
     private static final long serialVersionUID = 1L;
     Long ssn; // Global session number
     int sid; // Unique site ID
@@ -57,9 +57,20 @@ public class S4Vector implements Serializable {
         return "ssn: " + ssn + ", sid: " + sid + ", sum: " + sum + ", seq: " + seq;
     }
 
-    public boolean precedes(S4Vector s4Vector) {
-        return ssn < s4Vector.ssn
-                || ssn == s4Vector.ssn && sum < s4Vector.sum
-                || ssn == s4Vector.ssn && sum == s4Vector.sum && sid < s4Vector.sid;
+    public boolean precedes(S4Vector other) {
+        return compareTo(other) < 0;
+    }
+
+    @Override
+    public int compareTo(S4Vector other) {
+        if (!ssn.equals(other.ssn)) {
+            return ssn.compareTo(other.ssn); // Lower ssn comes first
+        }
+
+        if (!sum.equals(other.sum)) {
+            return sum.compareTo(other.sum); // Lower sum comes first
+        }
+
+        return Integer.compare(sid, other.sid); // Lower sid comes first
     }
 }
