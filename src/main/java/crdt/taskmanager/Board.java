@@ -8,7 +8,7 @@ public class Board implements Serializable, Titleable {
     private static final long serialVersionUID = 1L;
     private Queue<Operation<String>> opQueue;
     private String title;
-    private AWSet<Task> tasks;
+    private RGA<Task> tasks;
 
     public Board() {
         this.opQueue = new LinkedList<>();
@@ -17,10 +17,10 @@ public class Board implements Serializable, Titleable {
     public Board(String title) {
         this.opQueue = new LinkedList<>();
         this.title = title;
-        this.tasks = new AWSet<Task>();
+        this.tasks = new RGA<Task>();
     }
 
-    public Board(String title, AWSet<Task> tasks) {
+    public Board(String title, RGA<Task> tasks) {
         this.opQueue = new LinkedList<>();
         this.title = title;
         this.tasks = tasks;
@@ -34,11 +34,11 @@ public class Board implements Serializable, Titleable {
         this.title = title;
     }
 
-    public AWSet<Task> getTasks() {
+    public RGA<Task> getTasks() {
         return tasks;
     }
 
-    public void setTasks(AWSet<Task> tasks) {
+    public void setTasks(RGA<Task> tasks) {
         this.tasks = tasks;
     }
 }
