@@ -9,16 +9,18 @@ public class Operation<T> implements Serializable {
     T element;
     Long sessionN;
     int siteN;
+    S4Vector i;
     Vector<Long> vectorClock;
     String boardTitle;
     String taskTitle;
 
     public Operation(OperationType type, T element, Long sessionN, int siteN,
-    Vector<Long> vectorClock, String boardTitle, String taskTitle) {
+            S4Vector i, Vector<Long> vectorClock, String boardTitle, String taskTitle) {
         this.type = type;
         this.element = element;
         this.sessionN = sessionN;
         this.siteN = siteN;
+        this.i = i;
         this.vectorClock = vectorClock;
         this.boardTitle = boardTitle;
         this.taskTitle = taskTitle;
@@ -31,7 +33,7 @@ public class Operation<T> implements Serializable {
     @Override
     public String toString() {
         return "Operation [type=" + type + ", element=" + element.toString()
-        + ", sessionN=" + sessionN + ", siteN=" + siteN + ", vectorClock="
-        + vectorClock + ", boardTitle=" + boardTitle + ", taskTitle=" + taskTitle + "]";
+                + ", siteN=" + siteN + ", i=" + i + ", vectorClock=" + vectorClock +
+                ", boardTitle=" + boardTitle + ", taskTitle=" + taskTitle + "]";
     }
 }

@@ -11,9 +11,6 @@ public class ClientHandler extends Thread {
     private ObjectInputStream in;
     private ObjectOutputStream out;
 
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_GREEN = "\u001B[32m";
-
     public ClientHandler(Socket socket, Server server, int siteN) {
         this.clientSocket = socket;
         this.server = server;
@@ -35,7 +32,6 @@ public class ClientHandler extends Thread {
 
             while (true) {
                 try {
-                    S4Vector i = (S4Vector) in.readObject();
                     Operation<?> operation = (Operation<?>) in.readObject();
 
                     if (operation == null) {
@@ -43,11 +39,11 @@ public class ClientHandler extends Thread {
                         break;
                     }
 
-                    System.out.println("Received: " + ANSI_GREEN + operation + " with i = " + i + ANSI_RESET);
+                    System.out.println("Received: " + operation);
 
                     for (ClientHandler client : server.getClients()) {
                         if (operation.siteN != client.siteN) {
-                            client.broadcastOperation(i, operation);
+                            client.broadcastOperation(operation);
                         }
                     }
                 } catch (EOFException e) {
@@ -68,9 +64,8 @@ public class ClientHandler extends Thread {
         }
     }
 
-    public void broadcastOperation(S4Vector i, Operation<?> op) {
+    public void broadcastOperation(Operation<?> op) {
         try {
-            out.writeObject(i); 
             out.writeObject(op);
         } catch (IOException e) {
             throw new RuntimeException(e);
