@@ -5,17 +5,18 @@ import java.util.Vector;
 
 public class Operation<T> implements Serializable {
     private static final long serialVersionUID = 1L;
+
     OperationType type;
     T element;
-    Long sessionN;
+    long sessionN;
     int siteN;
     S4Vector i;
-    Vector<Long> vectorClock;
+    long[] vectorClock;
     String boardTitle;
     String taskTitle;
 
     public Operation(OperationType type, T element, Long sessionN, int siteN,
-            S4Vector i, Vector<Long> vectorClock, String boardTitle, String taskTitle) {
+            S4Vector i, long[] vectorClock, String boardTitle, String taskTitle) {
         this.type = type;
         this.element = element;
         this.sessionN = sessionN;

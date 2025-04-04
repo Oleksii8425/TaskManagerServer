@@ -8,7 +8,7 @@ public class Task implements Serializable, Titleable {
     private static final long serialVersionUID = 1L;
     private Queue<Operation<String>> opQueue;
     private String title;
-    private RGA<String> content;
+    private RGA<Character> content;
 
     public Task(String title) {
         opQueue = new LinkedList<>();
@@ -32,7 +32,7 @@ public class Task implements Serializable, Titleable {
         this.title = title;
     }
 
-    public RGA<String> getContent() {
+    public RGA<Character> getContent() {
         return content;
     }
 }

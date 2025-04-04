@@ -6,12 +6,13 @@ import java.util.Objects;
 
 public class S4Vector implements Serializable, Comparable<S4Vector> {
     private static final long serialVersionUID = 1L;
-    Long ssn; // Global session number
-    int sid; // Unique site ID
-    Long sum; // Cumulative sum of the site’s vector clock
-    Long seq; // Sequence number at the originating site
 
-    public S4Vector(Long ssn, int sid, Long sum, Long seq) {
+    long ssn; // Global session number
+    int sid; // Unique site ID
+    long sum; // Cumulative sum of the site’s vector clock
+    long seq; // Sequence number at the originating site
+
+    public S4Vector(long ssn, int sid, long sum, long seq) {
         this.ssn = ssn;
         this.sid = sid;
         this.sum = sum;
@@ -28,23 +29,19 @@ public class S4Vector implements Serializable, Comparable<S4Vector> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(Object other) {
+        if (this == other)
             return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        S4Vector s4Vector = (S4Vector) o;
-        // System.out.println("this key" + System.identityHashCode(this.hashCode()));
-        // System.out.println("i key" + System.identityHashCode(s4Vector.hashCode()));
-        boolean a = ssn.longValue() == s4Vector.ssn.longValue();
-        boolean b = sid == s4Vector.sid;
-        boolean c = sum.longValue() == s4Vector.sum.longValue();
-        boolean d = seq.longValue() == s4Vector.seq.longValue();
-        boolean res = a && b && c && d;
-        // return ssn == s4Vector.ssn && sid == s4Vector.sid &&
-        // sum == s4Vector.sum && seq == s4Vector.seq;
 
-        return res;
+        if (other == null || getClass() != other.getClass())
+            return false;
+
+        S4Vector s4Vector = (S4Vector) other;
+
+        return ssn == s4Vector.ssn &&
+                sid == s4Vector.sid &&
+                sum == s4Vector.sum &&
+                seq == s4Vector.seq;
     }
 
     @Override
@@ -63,12 +60,12 @@ public class S4Vector implements Serializable, Comparable<S4Vector> {
 
     @Override
     public int compareTo(S4Vector other) {
-        if (!ssn.equals(other.ssn)) {
-            return ssn.compareTo(other.ssn); // Lower ssn comes first
+        if (ssn != other.ssn) {
+            return (int) (ssn - other.ssn); // Lower ssn comes first
         }
 
-        if (!sum.equals(other.sum)) {
-            return sum.compareTo(other.sum); // Lower sum comes first
+        if (sum != other.sum) {
+            return (int) (sum - other.sum); // Lower sum comes first
         }
 
         return Integer.compare(sid, other.sid); // Lower sid comes first

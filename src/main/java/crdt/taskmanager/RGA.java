@@ -6,7 +6,7 @@ import java.util.*;
 public class RGA<T> implements Serializable, Iterable<T> {
     private static final long serialVersionUID = 1L;
 
-    private Vector<Long> vectorClock;
+    private long[] vectorClock;
     private Queue<Operation<T>> opQueue;
 
     RGANode<T> head;
@@ -14,32 +14,30 @@ public class RGA<T> implements Serializable, Iterable<T> {
     private int size = 0;
 
     public RGA() {
-        vectorClock = new Vector<>(Arrays.asList(0L, 0L, 0L));
+        vectorClock = new long[] {0L, 0L, 0L};
         opQueue = new LinkedList<>();
         head = null;
         RGA = new CustomHashtable<>();
     }
 
-    public Vector<Long> getVectorClock() {
+    public long[] getVectorClock() {
         return this.vectorClock;
     }
 
-    public void setVectorClock(Vector<Long> vectorClock) {
+    public void setVectorClock(long[] vectorClock) {
         this.vectorClock = vectorClock;
     }
 
-    public void updateVectorClock(int pos, Long val) {
-        vectorClock.set(pos, val);
+    public void updateVectorClock(int pos, long val) {
+        vectorClock[pos] = val;
     }
 
     public void increaseVectorClock(int pos) {
-        long c = vectorClock.get(pos);
-        updateVectorClock(pos, c + 1);
+        vectorClock[pos]++;
     }
 
     public void decreaseVectorClock(int pos) {
-        long c = vectorClock.get(pos);
-        updateVectorClock(pos, c - 1);
+        vectorClock[pos]--;
     }
 
     @Override
