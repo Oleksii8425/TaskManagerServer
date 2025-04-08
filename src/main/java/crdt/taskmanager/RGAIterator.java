@@ -7,7 +7,7 @@ public class RGAIterator<T> implements Iterator<T> {
     RGANode<T> current;
 
     public RGAIterator(RGA<T> rga) {
-        current = rga.head;
+        current = rga.getHead();
     }
 
     @Override

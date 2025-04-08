@@ -6,15 +6,15 @@ import java.net.Socket;
 public class ClientHandler extends Thread {
     private final Socket clientSocket;
     private final Server server;
-    private final int siteN;
+    private Integer siteN;
 
     private ObjectInputStream in;
     private ObjectOutputStream out;
 
-    public ClientHandler(Socket socket, Server server, int siteN) {
+    public ClientHandler(Socket socket, Server server) {
         this.clientSocket = socket;
         this.server = server;
-        this.siteN = siteN;
+
         try {
             this.in = new ObjectInputStream(clientSocket.getInputStream());
             this.out = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -25,42 +25,132 @@ public class ClientHandler extends Thread {
 
     public void run() {
         try {
+            siteN = (Integer) in.readObject();
+
+            // if the site is not initialised and the number of existing clients
+            // is less than the max number of clients
+            if (siteN == null && Server.maxSiteN < Server.N) {
+                siteN = Server.maxSiteN;
+                Server.maxSiteN++;
+            }
+
             System.out.println("Client" + siteN + " connected");
-            out.writeObject(server.getSessionN());
-            out.writeObject(siteN);
+            System.out.println("Total clients connected: " + server.getClients().size());
+
+            // read offline operations from the site if any is present
+            while (true) {
+                int res = readOperation();
+                if (res == 1)
+                    break;
+            }
+
+            out.writeLong(server.getSessionN());
+            out.writeInt(siteN);
             out.writeObject(server.getBoards());
 
             while (true) {
                 try {
-                    Operation<?> operation = (Operation<?>) in.readObject();
-
-                    if (operation == null) {
-                        System.out.println("Empty operation received");
+                    int res = readOperation();
+                    if (res == 1)
                         break;
-                    }
-
-                    System.out.println("Received: " + operation);
-
-                    for (ClientHandler client : server.getClients()) {
-                        if (operation.siteN != client.siteN) {
-                            client.broadcastOperation(operation);
-                        }
-                    }
                 } catch (EOFException e) {
                     continue;
                 }
             }
 
-            System.out.println("Client disconnected");
             server.removeClient(siteN);
+            System.out.println("Client disconnected");
+            System.out.println("Total clients connected: " + server.getClients().size());
+
+            // increase session number if all clients are disconnected
+            if (server.getClients().size() == 0) {
+                Server.sessionN++;
+                System.out.println("session: " + Server.sessionN);
+                server.resetVectorClocks();
+            }
+
             out.close();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
 
-        if (server.getClients().size() == 0) {// if all clients are disconnected
-            server.increaseSessionN();
-            server.resetVectorClocks();
+    @SuppressWarnings("unchecked")
+    private int readOperation() throws ClassNotFoundException, IOException {
+        Operation<?> operation = (Operation<?>) in.readObject();
+
+        if (operation != null) {
+            System.out.println("Received: " + operation);
+
+            if (operation.getElement() instanceof Board) {
+                handleBoardOperation((Operation<Board>) operation);
+            } else if (operation.getElement() instanceof Task) {
+                handleTaskOperation((Operation<Task>) operation);
+            } else {
+                handleTextOperation((Operation<Character>) operation);
+            }
+
+            for (ClientHandler client : server.getClients()) {
+                if (operation.siteN != client.siteN) {
+                    client.broadcastOperation(operation);
+                }
+            }
+
+            return 0;
+        }
+
+        return 1;
+    }
+
+    private void handleBoardOperation(Operation<Board> operation) {
+        try {
+            server.getBoards()
+                    .enqueueOperation(operation);
+
+            Thread boardOperationThread = new Thread(
+                    new BoardOperationHandler(server.getBoards()));
+
+            boardOperationThread.start();
+            boardOperationThread.join();
+        } catch (InterruptedException e) {
+            System.err.println("BoardOperationHandler was interrupted!");
+        }
+    }
+
+    private void handleTaskOperation(Operation<Task> operation) {
+        try {
+            RGA<Task> tasks = server.getBoards()
+                    .get(operation.boardTitle)
+                    .getTasks();
+
+            tasks.enqueueOperation(operation);
+
+            Thread taskOperationThread = new Thread(
+                    new TaskOperationHandler(tasks));
+
+            taskOperationThread.start();
+            taskOperationThread.join();
+        } catch (InterruptedException e) {
+            System.err.println("TaskOperationHandler was interrupted!");
+        }
+    }
+
+    private void handleTextOperation(Operation<Character> operation) {
+        try {
+            RGA<Character> taskContent = server.getBoards()
+                    .get(operation.boardTitle).getTasks()
+                    .get(operation.taskTitle)
+                    .getContent();
+
+            taskContent.enqueueOperation(operation);
+
+            Thread textOperationThread = new Thread(
+                    new TextOperationHandler(taskContent));
+
+            textOperationThread.start();
+            textOperationThread.join();
+        } catch (InterruptedException e) {
+            System.err.println("TextOperationHandler was interrupted!");
         }
     }
 

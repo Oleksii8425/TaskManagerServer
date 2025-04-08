@@ -19,6 +19,13 @@ public class S4Vector implements Serializable, Comparable<S4Vector> {
         this.seq = seq;
     }
 
+    public S4Vector(long sessionN, int siteN, long[] vectorClock) {
+        ssn = sessionN;
+        sid = siteN;
+        sum = Arrays.stream(vectorClock).sum();
+        seq = vectorClock[siteN];
+    }
+
     public S4Vector(String data) {
         String[] newData = data.replaceAll("[a-zA-Z]{3}:", "").split(" ");
         System.out.println(Arrays.toString(newData));

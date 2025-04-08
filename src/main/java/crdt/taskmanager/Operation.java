@@ -1,7 +1,6 @@
 package crdt.taskmanager;
 
 import java.io.Serializable;
-import java.util.Vector;
 
 public class Operation<T> implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -22,7 +21,7 @@ public class Operation<T> implements Serializable {
         this.sessionN = sessionN;
         this.siteN = siteN;
         this.i = i;
-        this.vectorClock = vectorClock;
+        this.vectorClock = vectorClock.clone();
         this.boardTitle = boardTitle;
         this.taskTitle = taskTitle;
     }
@@ -33,8 +32,8 @@ public class Operation<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "Operation [type=" + type + ", element=" + element.toString()
-                + ", siteN=" + siteN + ", i=" + i + ", vectorClock=" + vectorClock +
-                ", boardTitle=" + boardTitle + ", taskTitle=" + taskTitle + "]";
+        return "Operation [type=" + type + ", element=" + element
+                + ", siteN=" + siteN + ", i=" + i + ", vectorClock=" + vectorClock[0] + " " + vectorClock[1] + " "
+                + vectorClock[2] + " " + ", boardTitle=" + boardTitle + ", taskTitle=" + taskTitle + "]";
     }
 }
