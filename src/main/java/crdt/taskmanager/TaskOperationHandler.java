@@ -34,16 +34,16 @@ public class TaskOperationHandler implements Runnable {
 
                 try {
                     switch (op.type) {
-                        case INSERT -> tasks.insert(op.i, so, new Task(op.getElement().getTitle()));
-                        case UPDATE -> tasks.update(op.i, so, op.getElement());
+                        case INSERT -> tasks.insert(op.i, so, new Task(op.getTaskTitle()));
+                        case UPDATE -> tasks.update(op.i, so, new Task(op.getTaskTitle()));
                         case DELETE -> tasks.delete(op.i, so);
                     }
                 } catch (NoSuchElementException e) {
                     System.out.println("Error occured while trying to perform a remote " +
                             e.getMessage() + " operation");
                 }
-                
-                System.out.println("Tasks size after insert: " + tasks.size());
+
+                Server.save();
             } else {
                 break;
             }

@@ -23,6 +23,10 @@ public class ClientHandler extends Thread {
         }
     }
 
+    public Integer getSiteN() {
+        return this.siteN;
+    }
+
     public void run() {
         try {
             siteN = (Integer) in.readObject();
@@ -59,15 +63,15 @@ public class ClientHandler extends Thread {
             }
 
             server.removeClient(siteN);
-            System.out.println("Client disconnected");
+            System.out.println("Client " + siteN + " disconnected");
             System.out.println("Total clients connected: " + server.getClients().size());
 
             // increase session number if all clients are disconnected
-            if (server.getClients().size() == 0) {
-                Server.sessionN++;
-                System.out.println("session: " + Server.sessionN);
-                server.resetVectorClocks();
-            }
+            // if (server.getClients().size() == 0) {
+            //     Server.sessionN++;
+            //     System.out.println("session: " + Server.sessionN);
+            //     server.resetVectorClocks();
+            // }
 
             out.close();
         } catch (IOException | ClassNotFoundException e) {
@@ -82,16 +86,21 @@ public class ClientHandler extends Thread {
         if (operation != null) {
             System.out.println("Received: " + operation);
 
-            if (operation.getElement() instanceof Board) {
-                handleBoardOperation((Operation<Board>) operation);
-            } else if (operation.getElement() instanceof Task) {
-                handleTaskOperation((Operation<Task>) operation);
-            } else {
-                handleTextOperation((Operation<Character>) operation);
+            switch (operation.getTarget()) {
+                case BOARD -> {
+                    handleBoardOperation((Operation<Board>) operation);
+                }
+                case TASK -> {
+                    handleTaskOperation((Operation<Task>) operation);
+                }
+                case TEXT -> {
+                    handleTextOperation((Operation<Character>) operation);
+                }
             }
 
             for (ClientHandler client : server.getClients()) {
                 if (operation.siteN != client.siteN) {
+                    System.out.println("Broadcasting operation to client " + client.siteN);
                     client.broadcastOperation(operation);
                 }
             }
@@ -158,7 +167,7 @@ public class ClientHandler extends Thread {
         try {
             out.writeObject(op);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println("Error: Client unavailable to broadcast an operation.");
         }
     }
 }

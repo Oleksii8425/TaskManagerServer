@@ -166,11 +166,12 @@ public class RGA<T> implements Iterable<T>, Serializable {
         if (n.value != null) {
             n.value = null;
             n.sp = so;
+            size--;
         }
 
         Server.save();
 
-        return true;
+        return true; 
     }
 
     public boolean update(S4Vector i, S4Vector so, T value) {
@@ -250,12 +251,7 @@ public class RGA<T> implements Iterable<T>, Serializable {
         if (index < 0 || index >= size)
             throw new IndexOutOfBoundsException();
 
-        RGANode<T> current = head;
-        for (int i = 0; i < index; i++) {
-            current = current.link;
-        }
-
-        return current.value;
+        return findList(index).value;
     }
 
     public int size() {

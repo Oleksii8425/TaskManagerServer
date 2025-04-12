@@ -35,9 +35,9 @@ public class Server {
     }
 
     public void removeClient(int siteN) {
-        for (int i = 0; i < clients.size(); i++) {
-            if (i == siteN) {
-                clients.remove(i);
+        for (ClientHandler client : clients) {
+            if (client.getSiteN().equals(siteN)) {
+                clients.remove(client);
                 return;
             }
         }
@@ -49,8 +49,8 @@ public class Server {
         try {
             while (true) {
                 ClientHandler client = new ClientHandler(serverSocket.accept(), this);
-                client.start();
                 clients.add(client);
+                client.start();
             }
         } catch (IOException e) {
             stop();
@@ -66,8 +66,11 @@ public class Server {
 
         for (Board b : boards) {
             b.getTasks().setVectorClock(new long[] { 0L, 0L, 0L });
+
             for (Task t : b.getTasks()) {
-                t.getContent().setVectorClock(new long[] { 0L, 0L, 0L });
+                if (t != null) {
+                    t.getContent().setVectorClock(new long[] { 0L, 0L, 0L });
+                }
             }
         }
     }
@@ -76,11 +79,6 @@ public class Server {
         try (FileOutputStream fileOut = new FileOutputStream("data.dat");
                 ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
             out.writeLong(sessionN);
-            for (Board board : boards) {
-                for (Task task : board.getTasks()) {
-                    System.out.println(task.getContent().toString());
-                }
-            }
             out.writeObject(boards);
         } catch (FileNotFoundException e) {
             e.printStackTrace();

@@ -31,14 +31,16 @@ public class TextOperationHandler implements Runnable {
 
                 try {
                     switch (op.type) {
-                        case INSERT -> taskContent.insert(op.i, so, op.getElement());
-                        case UPDATE -> taskContent.update(op.i, so, op.getElement());
+                        case INSERT -> taskContent.insert(op.i, so, op.getCharacter());
+                        case UPDATE -> taskContent.update(op.i, so, op.getCharacter());
                         case DELETE -> taskContent.delete(op.i, so);
                     }
                 } catch (NoSuchElementException e) {
                     System.out.println("Error occured while trying to perform a remote " +
                             e.getMessage() + " operation");
                 }
+
+                Server.save();
             } else {
                 break;
             }

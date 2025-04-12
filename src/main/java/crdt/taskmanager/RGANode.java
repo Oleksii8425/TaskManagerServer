@@ -3,6 +3,8 @@ package crdt.taskmanager;
 import java.io.Serializable;
 
 public class RGANode<T> implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     T value;
     S4Vector sk; //Sequence Key
     S4Vector sp; //Sequence Predecessor

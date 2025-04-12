@@ -31,8 +31,8 @@ public class BoardOperationHandler implements Runnable {
 
                 try {
                     switch (op.type) {
-                        case INSERT -> boards.insert(op.i, so, op.getElement());
-                        case UPDATE -> boards.update(op.i, so, op.getElement());
+                        case INSERT -> boards.insert(op.i, so, new Board(op.getBoardTitle()));
+                        case UPDATE -> boards.update(op.i, so, new Board(op.getBoardTitle()));
                         case DELETE -> boards.delete(op.i, so);
                     }
                 } catch (NoSuchElementException e) {
@@ -40,7 +40,7 @@ public class BoardOperationHandler implements Runnable {
                             e.getMessage() + " operation");
                 }
 
-                System.out.println("Boards size after insert: " + boards.size());
+                Server.save();
             } else {
                 break;
             }
